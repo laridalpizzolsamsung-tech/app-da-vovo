@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <meta name="theme-color" content="#0f4c81" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Vovó" />
+  <title>Cuidando da Vovó</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --blue-dark: #0f4c81;
+      --blue: #1a6bbf;
+      --blue-light: #e8f2fc;
+      --blue-mid: #3a8de0;
+      --green: #1a7a4a;
+      --green-light: #e6f5ed;
+      --red: #c0392b;
+      --red-light: #fdecea;
+      --amber: #b45309;
+      --amber-light: #fef3e2;
+      --gray-50: #f8f9fb;
+      --gray-100: #f0f2f5;
+      --gray-200: #e2e6ed;
+      --gray-400: #9aa3b0;
+      --gray-600: #5a6373;
+      --gray-900: #1a1f2e;
+      --white: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-md: 0 4px 12px rgba(0,0,0,0.10);
+      --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --font: 'Plus Jakarta Sans', sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    body { font-family: var(--font); background: var(--gray-50); color: var(--gray-900); min-height: 100vh; max-width: 480px; margin: 0 auto; }
+
+    /* AUTH */
+    #auth-screen { min-height: 100vh; background: linear-gradient(160deg, var(--blue-dark), var(--blue) 60%, var(--blue-mid)); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem 1.5rem; }
+    .auth-logo { width: 80px; height: 80px; background: rgba(255,255,255,0.15); border-radius: 24px; display: flex; align-items: center; justify-content: center; font-size: 36px; margin-bottom: 1.5rem; border: 1.5px solid rgba(255,255,255,0.25); }
+    .auth-title { color: #fff; font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+    .auth-sub { color: rgba(255,255,255,0.7); font-size: 14px; text-align: center; margin-bottom: 2.5rem; }
+    .auth-card { background: var(--white); border-radius: var(--radius); padding: 1.75rem; width: 100%; box-shadow: var(--shadow-lg); }
+    .auth-tabs { display: flex; background: var(--gray-100); border-radius: var(--radius-sm); padding: 4px; margin-bottom: 1.5rem; }
+    .auth-tab { flex: 1; text-align: center; padding: 8px; border-radius: 7px; font-size: 14px; font-weight: 500; color: var(--gray-600); cursor: pointer; transition: all .2s; }
+    .auth-tab.active { background: var(--white); color: var(--blue-dark); box-shadow: var(--shadow-sm); }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 13px; font-weight: 600; color: var(--gray-600); margin-bottom: 6px; }
+    .field input, .field select { width: 100%; padding: 12px 14px; border-radius: var(--radius-sm); border: 1.5px solid var(--gray-200); font-size: 15px; font-family: var(--font); background: var(--white); color: var(--gray-900); outline: none; transition: border .2s; }
+    .field input:focus, .field select:focus { border-color: var(--blue); }
+    .btn-primary { width: 100%; padding: 14px; border-radius: var(--radius-sm); background: linear-gradient(135deg, var(--blue-dark), var(--blue)); color: #fff; font-size: 16px; font-weight: 700; border: none; cursor: pointer; font-family: var(--font); margin-top: .5rem; transition: opacity .2s; }
+    .btn-primary:active { opacity: .85; }
+    .btn-primary:disabled { opacity: .5; cursor: not-allowed; }
+    .auth-msg { text-align: center; font-size: 13px; margin-top: 1rem; min-height: 20px; }
+    .auth-msg.error { color: var(--red); }
+    .auth-msg.success { color: var(--green); }
+
+    /* APP */
+    #app-screen { display: none; flex-direction: column; min-height: 100vh; }
+    .app-header { background: linear-gradient(135deg, var(--blue-dark), var(--blue)); padding: 3rem 1.25rem 4.5rem; }
+    .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .header-greeting { color: rgba(255,255,255,0.8); font-size: 13px; }
+    .header-name { color: #fff; font-size: 18px; font-weight: 700; }
+    .btn-logout { background: rgba(255,255,255,0.15); border: none; border-radius: 10px; color: #fff; font-size: 12px; font-weight: 600; padding: 6px 12px; cursor: pointer; font-family: var(--font); }
+    .balance-card { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); border-radius: var(--radius); padding: 1.25rem 1.5rem; }
+    .balance-label { color: rgba(255,255,255,0.7); font-size: 13px; margin-bottom: 4px; }
+    .balance-value { color: #fff; font-size: 36px; font-weight: 700; letter-spacing: -1px; }
+    .balance-row { display: flex; gap: 1.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.15); }
+    .balance-item-label { color: rgba(255,255,255,0.6); font-size: 11px; text-transform: uppercase; letter-spacing: .05em; }
+    .balance-item-val { color: #fff; font-size: 16px; font-weight: 600; margin-top: 2px; }
+    .balance-item-val.green { color: #6ee7b7; }
+    .balance-item-val.red { color: #fca5a5; }
+
+    .content-area { flex: 1; margin-top: -2rem; background: var(--gray-50); border-radius: 24px 24px 0 0; padding: 1.5rem 1.25rem 6rem; }
+
+    .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 1.75rem; }
+    .qa-btn { background: var(--white); border-radius: var(--radius); padding: 1rem; border: none; cursor: pointer; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; box-shadow: var(--shadow-sm); font-family: var(--font); transition: transform .15s; }
+    .qa-btn:active { transform: scale(.97); }
+    .qa-icon { font-size: 22px; }
+    .qa-label { font-size: 13px; font-weight: 600; color: var(--gray-900); }
+    .qa-sub { font-size: 11px; color: var(--gray-400); }
+
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .section-title { font-size: 16px; font-weight: 700; }
+    .section-link { font-size: 13px; color: var(--blue); font-weight: 600; cursor: pointer; border: none; background: none; font-family: var(--font); }
+
+    .tx-list { display: flex; flex-direction: column; gap: 8px; }
+    .tx-item { background: var(--white); border-radius: var(--radius-sm); padding: 14px; display: flex; align-items: center; gap: 12px; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .15s; }
+    .tx-item:active { transform: scale(.98); }
+    .tx-avatar { width: 42px; height: 42px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+    .tx-info { flex: 1; min-width: 0; }
+    .tx-desc { font-size: 14px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tx-meta { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+    .tx-right { text-align: right; flex-shrink: 0; }
+    .tx-amount { font-size: 15px; font-weight: 700; }
+    .tx-amount.out { color: var(--red); }
+    .tx-amount.in { color: var(--green); }
+    .tx-badge { display: inline-block; font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 999px; margin-top: 3px; }
+    .badge-future { background: var(--amber-light); color: var(--amber); }
+    .badge-paid { background: var(--green-light); color: var(--green); }
+    .has-receipt { font-size: 10px; color: var(--blue); margin-top: 2px; }
+
+    .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 480px; background: var(--white); border-top: 1px solid var(--gray-200); display: flex; padding: .5rem 0 1rem; z-index: 100; }
+    .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; cursor: pointer; border: none; background: none; font-family: var(--font); }
+    .nav-icon { font-size: 22px; }
+    .nav-label { font-size: 10px; font-weight: 600; color: var(--gray-400); }
+    .nav-item.active .nav-label { color: var(--blue); }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; display: flex; align-items: flex-end; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .25s; }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+    .modal { background: var(--white); border-radius: 24px 24px 0 0; width: 100%; max-width: 480px; padding: 1.5rem; max-height: 92vh; overflow-y: auto; transform: translateY(100%); transition: transform .3s cubic-bezier(.4,0,.2,1); }
+    .modal-overlay.open .modal { transform: translateY(0); }
+    .modal-handle { width: 36px; height: 4px; background: var(--gray-200); border-radius: 2px; margin: 0 auto 1.25rem; }
+    .modal-title { font-size: 18px; font-weight: 700; margin-bottom: 1.5rem; }
+
+    .type-toggle { display: flex; background: var(--gray-100); border-radius: var(--radius-sm); padding: 4px; gap: 4px; margin-bottom: 1.25rem; }
+    .type-btn { flex: 1; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 14px; font-weight: 600; font-family: var(--font); transition: all .2s; color: var(--gray-600); background: transparent; }
+    .type-btn.active-out { background: var(--red-light); color: var(--red); }
+    .type-btn.active-in { background: var(--green-light); color: var(--green); }
+
+    .receipt-area { border: 2px dashed var(--gray-200); border-radius: var(--radius-sm); padding: 1.25rem; text-align: center; cursor: pointer; margin-bottom: 1rem; transition: border-color .2s; }
+    .receipt-area:hover { border-color: var(--blue); }
+    .receipt-area input { display: none; }
+    .receipt-preview { max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 10px; }
+
+    .btn-danger { width: 100%; padding: 13px; border-radius: var(--radius-sm); background: var(--red-light); color: var(--red); font-size: 15px; font-weight: 700; border: none; cursor: pointer; font-family: var(--font); margin-top: .75rem; }
+    .btn-secondary { width: 100%; padding: 13px; border-radius: var(--radius-sm); background: var(--gray-100); color: var(--gray-600); font-size: 15px; font-weight: 700; border: none; cursor: pointer; font-family: var(--font); margin-top: .5rem; }
+
+    .filter-row { display: flex; gap: 8px; margin-bottom: 1.25rem; overflow-x: auto; padding-bottom: 4px; }
+    .filter-chip { flex-shrink: 0; padding: 6px 14px; border-radius: 999px; font-size: 13px; font-weight: 600; border: 1.5px solid var(--gray-200); background: var(--white); color: var(--gray-600); cursor: pointer; font-family: var(--font); transition: all .2s; }
+    .filter-chip.active { background: var(--blue-dark); color: #fff; border-color: var(--blue-dark); }
+
+    .summary-card { background: var(--white); border-radius: var(--radius); padding: 1.25rem; box-shadow: var(--shadow-sm); margin-bottom: 1rem; }
+    .summary-card-title { font-size: 13px; font-weight: 600; color: var(--gray-400); margin-bottom: 1rem; text-transform: uppercase; letter-spacing: .05em; }
+    .member-row { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--gray-100); }
+    .member-row:last-child { border-bottom: none; }
+    .member-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--blue-dark); flex-shrink: 0; }
+    .member-name { flex: 1; font-size: 14px; font-weight: 600; }
+    .member-total { font-size: 14px; font-weight: 700; color: var(--red); }
+    .cat-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+    .cat-bar-wrap { flex: 1; height: 6px; background: var(--gray-100); border-radius: 3px; overflow: hidden; }
+    .cat-bar { height: 100%; background: var(--blue); border-radius: 3px; }
+    .cat-name { font-size: 13px; color: var(--gray-600); width: 110px; flex-shrink: 0; }
+    .cat-val { font-size: 13px; font-weight: 600; width: 80px; text-align: right; }
+
+    .empty-state { text-align: center; padding: 3rem 1rem; color: var(--gray-400); }
+    .empty-state .es-icon { font-size: 48px; margin-bottom: 1rem; }
+    .empty-state p { font-size: 14px; line-height: 1.6; }
+    .spinner { text-align: center; padding: 2rem; color: var(--gray-400); font-size: 14px; }
+
+    .upcoming-banner { background: var(--amber-light); border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 10px; }
+    .ub-text { font-size: 13px; color: var(--amber); font-weight: 600; }
+
+    .detail-amount-big { font-size: 32px; font-weight: 700; margin-bottom: 1.5rem; }
+    .detail-amount-big.out { color: var(--red); }
+    .detail-amount-big.in { color: var(--green); }
+    .detail-label { font-size: 12px; color: var(--gray-400); font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: 4px; }
+    .detail-value { font-size: 16px; font-weight: 600; }
+  </style>
+</head>
+<body>
+
+<!-- AUTH -->
+<div id="auth-screen">
+  <div class="auth-logo">🏥</div>
+  <div class="auth-title">Cuidando da Vovó</div>
+  <div class="auth-sub">Gestão de gastos da família</div>
+  <div class="auth-card">
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('login')">Entrar</div>
+      <div class="auth-tab" onclick="switchAuthTab('register')">Criar conta</div>
+    </div>
+    <div id="tab-login">
+      <div class="field"><label>E-mail</label><input type="email" id="login-email" placeholder="seu@email.com" /></div>
+      <div class="field"><label>Senha</label><input type="password" id="login-pass" placeholder="••••••••" /></div>
+      <button class="btn-primary" onclick="doLogin()">Entrar</button>
+    </div>
+    <div id="tab-register" style="display:none;">
+      <div class="field"><label>Seu nome</label><input type="text" id="reg-name" placeholder="Ex: Tia Ana" /></div>
+      <div class="field"><label>E-mail</label><input type="email" id="reg-email" placeholder="seu@email.com" /></div>
+      <div class="field"><label>Senha (mínimo 6 caracteres)</label><input type="password" id="reg-pass" placeholder="••••••••" /></div>
+      <button class="btn-primary" onclick="doRegister()">Criar minha conta</button>
+    </div>
+    <div id="auth-msg" class="auth-msg"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app-screen">
+  <div class="app-header">
+    <div class="header-top">
+      <div><div class="header-greeting">Olá,</div><div class="header-name" id="header-name">—</div></div>
+      <button class="btn-logout" onclick="doLogout()">Sair</button>
+    </div>
+    <div class="balance-card">
+      <div class="balance-label">Saldo disponível</div>
+      <div class="balance-value" id="balance-total">R$ 0,00</div>
+      <div class="balance-row">
+        <div class="balance-item"><div class="balance-item-label">Entradas</div><div class="balance-item-val green" id="balance-in">R$ 0,00</div></div>
+        <div class="balance-item"><div class="balance-item-label">Saídas</div><div class="balance-item-val red" id="balance-out">R$ 0,00</div></div>
+        <div class="balance-item"><div class="balance-item-label">Previsto</div><div class="balance-item-val" id="balance-future" style="color:rgba(255,255,255,0.8);">R$ 0,00</div></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-area">
+    <!-- HOME -->
+    <div id="page-home" class="page active">
+      <div class="quick-actions">
+        <button class="qa-btn" onclick="openAddModal('out')"><div class="qa-icon">💸</div><div class="qa-label">Nova despesa</div><div class="qa-sub">Registrar gasto</div></button>
+        <button class="qa-btn" onclick="openAddModal('in')"><div class="qa-icon">💰</div><div class="qa-label">Nova entrada</div><div class="qa-sub">Registrar receita</div></button>
+        <button class="qa-btn" onclick="openAddModal('out', true)"><div class="qa-icon">📅</div><div class="qa-label">Agendar</div><div class="qa-sub">Lançamento futuro</div></button>
+        <button class="qa-btn" onclick="navTo('resumo')"><div class="qa-icon">📊</div><div class="qa-label">Resumo</div><div class="qa-sub">Ver relatórios</div></button>
+      </div>
+      <div id="upcoming-banner" style="display:none;" class="upcoming-banner">
+        <div style="font-size:20px;">⏰</div>
+        <div class="ub-text" id="upcoming-text"></div>
+      </div>
+      <div class="section-header">
+        <div class="section-title">Últimos lançamentos</div>
+        <button class="section-link" onclick="navTo('lancamentos')">Ver todos</button>
+      </div>
+      <div id="home-tx-list" class="tx-list"><div class="spinner">Carregando...</div></div>
+    </div>
+
+    <!-- LANÇAMENTOS -->
+    <div id="page-lancamentos" class="page">
+      <div class="filter-row">
+        <div class="filter-chip active" onclick="setFilter(this,'todos')">Todos</div>
+        <div class="filter-chip" onclick="setFilter(this,'out')">Despesas</div>
+        <div class="filter-chip" onclick="setFilter(this,'in')">Entradas</div>
+        <div class="filter-chip" onclick="setFilter(this,'future')">Futuros</div>
+        <div class="filter-chip" onclick="setFilter(this,'receipt')">Com comprovante</div>
+      </div>
+      <div id="all-tx-list" class="tx-list"><div class="spinner">Carregando...</div></div>
+    </div>
+
+    <!-- RESUMO -->
+    <div id="page-resumo" class="page">
+      <div class="summary-card"><div class="summary-card-title">Gasto por pessoa</div><div id="members-list"></div></div>
+      <div class="summary-card"><div class="summary-card-title">Gasto por categoria</div><div id="cat-list"></div></div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <button class="nav-item active" onclick="navTo('home')"><div class="nav-icon">🏠</div><div class="nav-label">Início</div></button>
+    <button class="nav-item" onclick="navTo('lancamentos')"><div class="nav-icon">📋</div><div class="nav-label">Lançamentos</div></button>
+    <button class="nav-item" onclick="openAddModal('out')"><div class="nav-icon">➕</div><div class="nav-label">Adicionar</div></button>
+    <button class="nav-item" onclick="navTo('resumo')"><div class="nav-icon">📊</div><div class="nav-label">Resumo</div></button>
+  </nav>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-overlay" id="add-modal-overlay" onclick="closeAddModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="add-modal-title">Nova despesa</div>
+    <div class="type-toggle">
+      <button class="type-btn active-out" id="type-out" onclick="setType('out')">💸 Despesa</button>
+      <button class="type-btn" id="type-in" onclick="setType('in')">💰 Entrada</button>
+    </div>
+    <div class="field"><label>Descrição</label><input type="text" id="f-desc" placeholder="Ex: Mensalidade da clínica" /></div>
+    <div class="field"><label>Valor (R$)</label><input type="number" id="f-val" placeholder="0,00" min="0.01" step="0.01" /></div>
+    <div class="field">
+      <label>Categoria</label>
+      <select id="f-cat">
+        <option>Mensalidade</option><option>Medicamentos</option><option>Alimentação</option>
+        <option>Vestuário</option><option>Higiene e cuidados</option><option>Transporte</option>
+        <option>Consultas / Exames</option><option>Materiais</option><option>Outros</option>
+      </select>
+    </div>
+    <div class="field"><label>Data</label><input type="date" id="f-date" /></div>
+    <div class="field"><label>Observação (opcional)</label><input type="text" id="f-obs" placeholder="Ex: Referente ao mês de abril" /></div>
+    <div class="receipt-area" onclick="document.getElementById('receipt-input').click()">
+      <div id="receipt-placeholder">📎 Toque para anexar comprovante<br/><span style="font-size:12px;color:#9aa3b0;">Foto ou imagem (opcional)</span></div>
+      <input type="file" id="receipt-input" accept="image/*" onchange="previewReceipt(this)" />
+      <img id="receipt-preview" class="receipt-preview" style="display:none;" />
+    </div>
+    <button class="btn-primary" id="save-btn" onclick="saveTx()">Salvar lançamento</button>
+    <button class="btn-secondary" onclick="closeAddModal()">Cancelar</button>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="detail-modal-overlay" onclick="closeDetailModal(event)">
+  <div class="modal"><div class="modal-handle"></div><div id="detail-content"></div></div>
+</div>
+
+<script>
+  // ══════════════════════════════════════
+  // 🔧 COLE SUAS CONFIGURAÇÕES DO SUPABASE AQUI
+  // ══════════════════════════════════════
+  const SUPABASE_URL = 'https://uohbwjrlknjronedwwps.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_HkRBK2dOEid6Xn35JwxECg_yxeIM5vW';
+  // ══════════════════════════════════════
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let currentUser = null;
+  let currentProfile = null;
+  let allTxs = [];
+  let currentFilter = 'todos';
+  let currentType = 'out';
+  let receiptFile = null;
+
+  // ── HELPERS ──
+  const fmt = v => 'R$ ' + Math.abs(v).toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+  const fmtDate = d => { if (!d) return ''; const [y,m,dd] = d.split('-'); return `${dd}/${m}/${y}`; };
+  const isFutureTx = tx => tx.future && new Date(tx.date + 'T00:00:00') > new Date();
+  const showMsg = (msg, type) => { const el = document.getElementById('auth-msg'); el.textContent = msg; el.className = 'auth-msg ' + type; };
+
+  const catEmoji = c => ({'Mensalidade':'🏥','Medicamentos':'💊','Alimentação':'🍽','Vestuário':'👗','Higiene e cuidados':'🧴','Transporte':'🚗','Consultas / Exames':'🩺','Materiais':'🧰','Outros':'📦'}[c]||'📦');
+  const catColor = c => ({'Mensalidade':'#dbeafe','Medicamentos':'#fce7f3','Alimentação':'#dcfce7','Vestuário':'#fef9c3','Higiene e cuidados':'#ede9fe','Transporte':'#ffedd5','Consultas / Exames':'#cffafe','Materiais':'#f1f5f9','Outros':'#f3f4f6'}[c]||'#f3f4f6');
+
+  // ── AUTH ──
+  window.switchAuthTab = tab => {
+    document.getElementById('tab-login').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('tab-register').style.display = tab === 'register' ? 'block' : 'none';
+    document.querySelectorAll('.auth-tab').forEach((t,i) => t.classList.toggle('active', (i===0&&tab==='login')||(i===1&&tab==='register')));
+    showMsg('','');
+  };
+
+  window.doLogin = async () => {
+    const email = document.getElementById('login-email').value.trim();
+    const pass = document.getElementById('login-pass').value;
+    if (!email || !pass) { showMsg('Preencha todos os campos.', 'error'); return; }
+    showMsg('Entrando...', '');
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) showMsg('E-mail ou senha incorretos.', 'error');
+  };
+
+  window.doRegister = async () => {
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const pass = document.getElementById('reg-pass').value;
+    if (!name || !email || !pass) { showMsg('Preencha todos os campos.', 'error'); return; }
+    if (pass.length < 6) { showMsg('Senha deve ter ao menos 6 caracteres.', 'error'); return; }
+    showMsg('Criando conta...', '');
+    const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { full_name: name } } });
+    if (error) showMsg('Erro ao criar conta: ' + error.message, 'error');
+    else showMsg('Conta criada! Verifique seu e-mail para confirmar. 📧', 'success');
+  };
+
+  window.doLogout = async () => { await sb.auth.signOut(); };
+
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (session?.user) {
+      currentUser = session.user;
+      const name = currentUser.user_metadata?.full_name || currentUser.email;
+      document.getElementById('header-name').textContent = name;
+      document.getElementById('auth-screen').style.display = 'none';
+      document.getElementById('app-screen').style.display = 'flex';
+      await loadTxs();
+      subscribeRealtime();
+    } else {
+      currentUser = null;
+      document.getElementById('auth-screen').style.display = 'flex';
+      document.getElementById('app-screen').style.display = 'none';
+    }
+  });
+
+  // ── DATA ──
+  async function loadTxs() {
+    const { data } = await sb.from('transactions').select('*').order('date', { ascending: false });
+    allTxs = data || [];
+    renderAll();
+  }
+
+  function subscribeRealtime() {
+    sb.channel('transactions').on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => loadTxs()).subscribe();
+  }
+
+  window.saveTx = async () => {
+    const desc = document.getElementById('f-desc').value.trim();
+    const val = parseFloat(document.getElementById('f-val').value);
+    const cat = document.getElementById('f-cat').value;
+    const date = document.getElementById('f-date').value;
+    const obs = document.getElementById('f-obs').value.trim();
+    if (!desc || !val || val <= 0 || !date) { alert('Preencha descrição, valor e data.'); return; }
+
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true; btn.textContent = 'Salvando...';
+
+    let receipt_url = null;
+    if (receiptFile) {
+      const ext = receiptFile.name.split('.').pop();
+      const path = `receipts/${Date.now()}_${currentUser.id}.${ext}`;
+      const { error: upErr } = await sb.storage.from('comprovantes').upload(path, receiptFile);
+      if (!upErr) {
+        const { data: urlData } = sb.storage.from('comprovantes').getPublicUrl(path);
+        receipt_url = urlData.publicUrl;
+      }
+    }
+
+    const isFuture = new Date(date + 'T00:00:00') > new Date();
+    const userName = currentUser.user_metadata?.full_name || currentUser.email;
+
+    await sb.from('transactions').insert({
+      description: desc, amount: val, cat, date, obs,
+      type: currentType,
+      future: isFuture,
+      receipt_url,
+      user_name: userName,
+      user_id: currentUser.id
+    });
+
+    btn.disabled = false; btn.textContent = 'Salvar lançamento';
+    closeAddModal();
+  };
+
+  window.deleteTx = async id => {
+    if (!confirm('Excluir este lançamento?')) return;
+    await sb.from('transactions').delete().eq('id', id);
+    closeDetailModal();
+  };
+
+  // ── RENDER ──
+  function txHTML(tx) {
+    const future = isFutureTx(tx);
+    return `<div class="tx-item" onclick="showDetail('${tx.id}')">
+      <div class="tx-avatar" style="background:${catColor(tx.cat)}">${catEmoji(tx.cat)}</div>
+      <div class="tx-info">
+        <div class="tx-desc">${tx.description}</div>
+        <div class="tx-meta">${tx.user_name} · ${fmtDate(tx.date)} · ${tx.cat}</div>
+        ${tx.receipt_url ? '<div class="has-receipt">📎 comprovante anexado</div>' : ''}
+      </div>
+      <div class="tx-right">
+        <div class="tx-amount ${tx.type}">${tx.type==='out'?'-':'+'}${fmt(tx.amount)}</div>
+        <span class="tx-badge ${future?'badge-future':'badge-paid'}">${future?'previsto':'realizado'}</span>
+      </div>
+    </div>`;
+  }
+
+  function renderAll() {
+    const realized = allTxs.filter(t => !isFutureTx(t));
+    const future = allTxs.filter(isFutureTx);
+    const totalIn = realized.filter(t=>t.type==='in').reduce((a,t)=>a+t.amount,0);
+    const totalOut = realized.filter(t=>t.type==='out').reduce((a,t)=>a+t.amount,0);
+    const totalFuture = future.filter(t=>t.type==='out').reduce((a,t)=>a+t.amount,0);
+    const bal = totalIn - totalOut;
+
+    document.getElementById('balance-total').textContent = fmt(bal);
+    document.getElementById('balance-total').style.color = bal < 0 ? '#fca5a5' : '#fff';
+    document.getElementById('balance-in').textContent = fmt(totalIn);
+    document.getElementById('balance-out').textContent = fmt(totalOut);
+    document.getElementById('balance-future').textContent = fmt(totalFuture);
+
+    const upBanner = document.getElementById('upcoming-banner');
+    if (future.length) {
+      upBanner.style.display = 'flex';
+      document.getElementById('upcoming-text').textContent = `${future.length} lançamento${future.length>1?'s':''} previsto${future.length>1?'s':''} — ${fmt(totalFuture)}`;
+    } else upBanner.style.display = 'none';
+
+    document.getElementById('home-tx-list').innerHTML = allTxs.length
+      ? allTxs.slice(0,8).map(txHTML).join('')
+      : '<div class="empty-state"><div class="es-icon">💳</div><p>Nenhum lançamento ainda.<br/>Adicione a primeira entrada!</p></div>';
+
+    renderFiltered();
+    renderResumo();
+  }
+
+  function renderFiltered() {
+    let txs = [...allTxs];
+    if (currentFilter === 'out') txs = txs.filter(t=>t.type==='out');
+    else if (currentFilter === 'in') txs = txs.filter(t=>t.type==='in');
+    else if (currentFilter === 'future') txs = txs.filter(isFutureTx);
+    else if (currentFilter === 'receipt') txs = txs.filter(t=>t.receipt_url);
+    document.getElementById('all-tx-list').innerHTML = txs.length
+      ? txs.map(txHTML).join('')
+      : '<div class="empty-state"><div class="es-icon">🔍</div><p>Nenhum lançamento aqui.</p></div>';
+  }
+
+  function renderResumo() {
+    const membersMap = {};
+    allTxs.filter(t=>t.type==='out').forEach(t => { membersMap[t.user_name] = (membersMap[t.user_name]||0) + t.amount; });
+    const members = Object.entries(membersMap).sort((a,b)=>b[1]-a[1]);
+    document.getElementById('members-list').innerHTML = members.length
+      ? members.map(([name,val]) => `<div class="member-row"><div class="member-avatar">${name.charAt(0).toUpperCase()}</div><div class="member-name">${name}</div><div class="member-total">${fmt(val)}</div></div>`).join('')
+      : '<div style="color:#9aa3b0;font-size:14px;padding:1rem 0;">Nenhum dado ainda.</div>';
+
+    const catsMap = {};
+    allTxs.filter(t=>t.type==='out').forEach(t => { catsMap[t.cat] = (catsMap[t.cat]||0) + t.amount; });
+    const cats = Object.entries(catsMap).sort((a,b)=>b[1]-a[1]);
+    const maxVal = cats.length ? cats[0][1] : 1;
+    document.getElementById('cat-list').innerHTML = cats.length
+      ? cats.map(([cat,val]) => `<div class="cat-row"><div class="cat-name">${catEmoji(cat)} ${cat}</div><div class="cat-bar-wrap"><div class="cat-bar" style="width:${Math.round(val/maxVal*100)}%"></div></div><div class="cat-val">${fmt(val)}</div></div>`).join('')
+      : '<div style="color:#9aa3b0;font-size:14px;padding:1rem 0;">Nenhum dado ainda.</div>';
+  }
+
+  // ── NAV ──
+  window.navTo = page => {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    document.querySelectorAll('.nav-item').forEach((n,i) => n.classList.toggle('active', ['home','lancamentos',null,'resumo'][i]===page));
+    if (page==='lancamentos') renderFiltered();
+    if (page==='resumo') renderResumo();
+  };
+
+  // ── ADD MODAL ──
+  window.openAddModal = (type, future=false) => {
+    currentType = type; setType(type);
+    document.getElementById('f-desc').value = '';
+    document.getElementById('f-val').value = '';
+    document.getElementById('f-obs').value = '';
+    document.getElementById('f-date').value = future
+      ? new Date(Date.now()+86400000*7).toISOString().slice(0,10)
+      : new Date().toISOString().slice(0,10);
+    receiptFile = null;
+    document.getElementById('receipt-preview').style.display = 'none';
+    document.getElementById('receipt-placeholder').style.display = 'block';
+    document.getElementById('receipt-input').value = '';
+    document.getElementById('add-modal-overlay').classList.add('open');
+  };
+
+  window.closeAddModal = e => {
+    if (e && e.target !== document.getElementById('add-modal-overlay')) return;
+    document.getElementById('add-modal-overlay').classList.remove('open');
+  };
+
+  window.setType = type => {
+    currentType = type;
+    document.getElementById('type-out').className = 'type-btn '+(type==='out'?'active-out':'');
+    document.getElementById('type-in').className = 'type-btn '+(type==='in'?'active-in':'');
+    document.getElementById('add-modal-title').textContent = type==='out' ? 'Nova despesa' : 'Nova entrada';
+  };
+
+  window.previewReceipt = input => {
+    receiptFile = input.files[0];
+    if (!receiptFile) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('receipt-preview').src = e.target.result;
+      document.getElementById('receipt-preview').style.display = 'block';
+      document.getElementById('receipt-placeholder').style.display = 'none';
+    };
+    reader.readAsDataURL(receiptFile);
+  };
+
+  // ── DETAIL MODAL ──
+  window.showDetail = id => {
+    const tx = allTxs.find(t=>t.id===id); if (!tx) return;
+    const future = isFutureTx(tx);
+    const canDelete = tx.user_id === currentUser?.id;
+    document.getElementById('detail-content').innerHTML = `
+      <div class="detail-amount-big ${tx.type}">${tx.type==='out'?'- ':'+'}${fmt(tx.amount)}</div>
+      <div style="font-size:20px;font-weight:700;margin-bottom:1.5rem;">${tx.description}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:1.5rem;">
+        <div><div class="detail-label">Data</div><div class="detail-value">${fmtDate(tx.date)}</div></div>
+        <div><div class="detail-label">Status</div><div class="detail-value">${future?'⏰ Previsto':'✅ Realizado'}</div></div>
+        <div><div class="detail-label">Categoria</div><div class="detail-value">${catEmoji(tx.cat)} ${tx.cat}</div></div>
+        <div><div class="detail-label">Lançado por</div><div class="detail-value">${tx.user_name}</div></div>
+      </div>
+      ${tx.obs?`<div style="margin-bottom:1.25rem;"><div class="detail-label">Observação</div><div class="detail-value" style="font-weight:400;font-size:15px;">${tx.obs}</div></div>`:''}
+      ${tx.receipt_url?`<div style="margin-bottom:1.25rem;"><div class="detail-label">Comprovante</div><img src="${tx.receipt_url}" style="width:100%;border-radius:12px;margin-top:8px;cursor:pointer;" onclick="window.open('${tx.receipt_url}')" /></div>`:''}
+      ${canDelete?`<button class="btn-danger" onclick="deleteTx('${tx.id}')">🗑 Excluir lançamento</button>`:''}
+      <button class="btn-secondary" onclick="closeDetailModal()">Fechar</button>`;
+    document.getElementById('detail-modal-overlay').classList.add('open');
+  };
+
+  window.closeDetailModal = e => {
+    if (e && e.target !== document.getElementById('detail-modal-overlay')) return;
+    document.getElementById('detail-modal-overlay').classList.remove('open');
+  };
+
+  window.setFilter = (el, filter) => {
+    currentFilter = filter;
+    document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+    el.classList.add('active');
+    renderFiltered();
+  };
+</script>
+</body>
+</html>
