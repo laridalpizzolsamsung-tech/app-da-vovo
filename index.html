@@ -407,7 +407,7 @@
     const isFuture = new Date(date + 'T00:00:00') > new Date();
     const userName = currentUser.user_metadata?.full_name || currentUser.email;
 
-    await sb.from('transactions').insert({
+    const { error: insertError } = await sb.from('transactions').insert({
       description: desc, amount: val, cat, date, obs,
       type: currentType,
       future: isFuture,
@@ -417,7 +417,14 @@
     });
 
     btn.disabled = false; btn.textContent = 'Salvar lançamento';
-    closeAddModal();
+
+    if (insertError) {
+      alert('Erro ao salvar: ' + insertError.message);
+      return;
+    }
+
+    document.getElementById('add-modal-overlay').classList.remove('open');
+    await loadTxs();
   };
 
   window.deleteTx = async id => {
